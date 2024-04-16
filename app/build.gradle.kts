@@ -65,6 +65,7 @@ dependencies {
   implementation(libs.timber)
   implementation(platform(libs.firebase.bom))
   implementation(libs.firebase.firestore)
+  implementation(libs.firebaseUiAuth)
 
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)

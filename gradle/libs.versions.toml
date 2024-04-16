@@ -12,6 +12,7 @@ hilt = "2.51"
 timber = "5.0.1"
 googleServices = "4.4.1"
 firebaseBom = "32.8.1"
+firebaseUiAuth = "7.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,6 +34,7 @@ hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hil
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
+firebaseUiAuth = { module = "com.firebaseui:firebase-ui-auth", version.ref = "firebaseUiAuth" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

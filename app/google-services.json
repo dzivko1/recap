@@ -12,7 +12,12 @@
           "package_name": "io.github.dzivko1.recap"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1014226972719-dpvcldtadlbaivoi4eni4jdftijkl9sm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBv4Koczopk1KuQfWFgo9TA5YnkD3jol3k"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1014226972719-dpvcldtadlbaivoi4eni4jdftijkl9sm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
