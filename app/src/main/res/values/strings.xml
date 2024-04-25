@@ -1,3 +1,7 @@
 <resources>
   <string name="app_name">Recap</string>
+
+  <string name="records_section_label">Recap</string>
+  <string name="calendar_section_label">Calendar</string>
+  <string name="reminders_section_label">Reminders</string>
 </resources>
