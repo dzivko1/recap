@@ -4,4 +4,8 @@
   <string name="records_section_label">Recap</string>
   <string name="calendar_section_label">Calendar</string>
   <string name="reminders_section_label">Reminders</string>
+
+  <!-- Records screen -->
+  <string name="records_add_record_content_desc">Add record</string>
+  <string name="records_date_picker_select_button">Select</string>
 </resources>
