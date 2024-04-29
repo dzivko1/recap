@@ -1,11 +1,14 @@
 package io.github.dzivko1.recap.data.record
 
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.dataObjects
 import io.github.dzivko1.recap.model.Record
 import io.github.dzivko1.recap.model.RecordApiModel
+import io.github.dzivko1.recap.model.toApiModel
 import io.github.dzivko1.recap.model.toDomainModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -27,9 +30,14 @@ class FirebaseDataSource @Inject constructor(
   }
 
   fun getRecordsFlow(): Flow<List<Record>> {
-    return recordsCollection.dataObjects<RecordApiModel>().map { records ->
-      records.map { it.toDomainModel() }
-    }
+    return recordsCollection.dataObjects<RecordApiModel>()
+      .map { records -> records.map { it.toDomainModel() } }
+  }
+
+  fun getDayRecordsFlow(date: LocalDate): Flow<List<Record>> {
+    return recordsCollection.whereEqualTo("epochDay", date.toEpochDay())
+      .dataObjects<RecordApiModel>()
+      .map { records -> records.map { it.toDomainModel() } }
   }
 
   suspend fun createRecord(
@@ -37,10 +45,31 @@ class FirebaseDataSource @Inject constructor(
     text: String,
   ) {
     recordsCollection.add(
-      RecordApiModel(
-        epochDay = date.toEpochDay(),
-        text = text
-      )
+      Record(
+        date = date,
+        text = text,
+        createdAt = Timestamp.now(),
+        updatedAt = null
+      ).toApiModel()
     ).await()
+  }
+
+  suspend fun editRecord(
+    id: String,
+    date: LocalDate,
+    text: String,
+  ) {
+    recordsCollection.document(id).set(
+      mapOf(
+        "epochDay" to date.toEpochDay(),
+        "text" to text,
+        "updatedAt" to Timestamp.now()
+      ),
+      SetOptions.merge()
+    ).await()
+  }
+
+  suspend fun deleteRecord(id: String) {
+    recordsCollection.document(id).delete().await()
   }
 }

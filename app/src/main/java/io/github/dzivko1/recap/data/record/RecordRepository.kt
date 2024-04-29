@@ -7,8 +7,13 @@ import java.time.LocalDate
 interface RecordRepository {
   fun getRecordsFlow(): Flow<List<Record>>
 
-  suspend fun createRecord(
+  fun getDayRecordsFlow(date: LocalDate): Flow<List<Record>>
+
+  suspend fun saveRecord(
+    id: String? = null,
     date: LocalDate,
     text: String,
   )
+
+  suspend fun deleteRecord(id: String)
 }

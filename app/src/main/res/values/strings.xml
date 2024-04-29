@@ -8,4 +8,10 @@
   <!-- Records screen -->
   <string name="records_add_record_content_desc">Add record</string>
   <string name="records_date_picker_select_button">Select</string>
+
+  <!-- Day screen -->
+  <string name="day_new_record_content_desc">Add new record</string>
+  <string name="day_save_record_content_desc">Save record</string>
+  <string name="day_cancel_record_edit_content_desc">Cancel editing</string>
+  <string name="day_delete_record_swipe_label">Delete</string>
 </resources>

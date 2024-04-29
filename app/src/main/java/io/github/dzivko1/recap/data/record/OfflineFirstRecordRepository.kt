@@ -13,7 +13,19 @@ class OfflineFirstRecordRepository @Inject constructor(
     return firebaseDataSource.getRecordsFlow()
   }
 
-  override suspend fun createRecord(date: LocalDate, text: String) {
-    firebaseDataSource.createRecord(date, text)
+  override fun getDayRecordsFlow(date: LocalDate): Flow<List<Record>> {
+    return firebaseDataSource.getDayRecordsFlow(date)
+  }
+
+  override suspend fun saveRecord(id: String?, date: LocalDate, text: String) {
+    if (id == null) {
+      firebaseDataSource.createRecord(date, text)
+    } else {
+      firebaseDataSource.editRecord(id, date, text)
+    }
+  }
+
+  override suspend fun deleteRecord(id: String) {
+    firebaseDataSource.deleteRecord(id)
   }
 }
