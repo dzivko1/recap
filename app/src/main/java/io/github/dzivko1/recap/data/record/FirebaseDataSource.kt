@@ -2,6 +2,7 @@ package io.github.dzivko1.recap.data.record
 
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -30,12 +31,16 @@ class FirebaseDataSource @Inject constructor(
   }
 
   fun getRecordsFlow(): Flow<List<Record>> {
-    return recordsCollection.dataObjects<RecordApiModel>()
+    return recordsCollection
+      .orderBy("index")
+      .dataObjects<RecordApiModel>()
       .map { records -> records.map { it.toDomainModel() } }
   }
 
   fun getDayRecordsFlow(date: LocalDate): Flow<List<Record>> {
-    return recordsCollection.whereEqualTo("epochDay", date.toEpochDay())
+    return recordsCollection
+      .whereEqualTo("epochDay", date.toEpochDay())
+      .orderBy("index")
       .dataObjects<RecordApiModel>()
       .map { records -> records.map { it.toDomainModel() } }
   }
@@ -44,8 +49,13 @@ class FirebaseDataSource @Inject constructor(
     date: LocalDate,
     text: String,
   ) {
+    val recordCount = recordsCollection.count()
+      .get(AggregateSource.SERVER).await()
+      .count.toInt()
+
     recordsCollection.add(
       Record(
+        index = recordCount,
         date = date,
         text = text,
         createdAt = Timestamp.now(),
@@ -71,5 +81,16 @@ class FirebaseDataSource @Inject constructor(
 
   suspend fun deleteRecord(id: String) {
     recordsCollection.document(id).delete().await()
+  }
+
+  fun setRecordsOrderAsync(records: List<Record>) {
+    records.forEachIndexed { index, record ->
+      recordsCollection.document(record.id).set(
+        mapOf(
+          "index" to index
+        ),
+        SetOptions.merge()
+      )
+    }
   }
 }

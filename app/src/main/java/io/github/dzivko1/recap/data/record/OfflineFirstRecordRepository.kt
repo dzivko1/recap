@@ -28,4 +28,8 @@ class OfflineFirstRecordRepository @Inject constructor(
   override suspend fun deleteRecord(id: String) {
     firebaseDataSource.deleteRecord(id)
   }
+
+  override fun setRecordsOrder(records: List<Record>) {
+    firebaseDataSource.setRecordsOrderAsync(records)
+  }
 }

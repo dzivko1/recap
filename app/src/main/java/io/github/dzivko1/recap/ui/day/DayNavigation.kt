@@ -1,12 +1,12 @@
 package io.github.dzivko1.recap.ui.day
 
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import io.github.dzivko1.recap.ui.common.component.PageLoadingIndicator
 import java.time.LocalDate
 
 const val DAY_ROUTE = "day"
@@ -28,13 +28,22 @@ fun NavController.navigateToDay(date: LocalDate) {
 fun NavGraphBuilder.dayScreen() {
   composable(route = "$DAY_ROUTE/{$DAY_DATE_ARG}") {
     val viewModel = hiltViewModel<DayViewModel>()
-    val records by viewModel.records.collectAsState()
+    val uiState = viewModel.uiState
+
+    LaunchedEffect(Unit) {
+      viewModel.loadData()
+    }
+
+    if (uiState.isLoading) {
+      PageLoadingIndicator()
+    }
 
     DayScreen(
       date = viewModel.date,
-      records = records,
+      records = uiState.records,
       onSaveRecord = viewModel::saveRecord,
-      onDeleteRecord = viewModel::deleteRecord
+      onDeleteRecord = viewModel::deleteRecord,
+      onMoveRecord = viewModel::moveRecord
     )
   }
 }

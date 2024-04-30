@@ -1,20 +1,21 @@
 [versions]
 agp = "8.3.2"
 kotlin = "1.9.23"
-coreKtx = "1.12.0"
+coreKtx = "1.13.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.7.0"
-activityCompose = "1.8.2"
-composeBom = "2024.04.00"
-hilt = "2.51"
-hilt-navigation-compose = "1.0.0"
+activityCompose = "1.9.0"
+composeBom = "2024.04.01"
+hilt = "2.51.1"
+hilt-navigation-compose = "1.2.0"
 timber = "5.0.1"
 googleServices = "4.4.1"
 firebaseBom = "32.8.1"
 firebaseUiAuth = "7.2.0"
 navigation = "2.7.7"
+reorderable = "1.5.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +41,7 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebaseUiAuth = { module = "com.firebaseui:firebase-ui-auth", version.ref = "firebaseUiAuth" }
+reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

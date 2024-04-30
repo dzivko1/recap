@@ -69,6 +69,7 @@ dependencies {
   implementation(platform(libs.firebase.bom))
   implementation(libs.firebase.firestore)
   implementation(libs.firebaseUiAuth)
+  implementation(libs.reorderable)
 
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)

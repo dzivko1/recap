@@ -16,4 +16,6 @@ interface RecordRepository {
   )
 
   suspend fun deleteRecord(id: String)
+
+  fun setRecordsOrder(records: List<Record>)
 }

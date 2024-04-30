@@ -1,11 +1,15 @@
 package io.github.dzivko1.recap.ui.day
 
+import android.os.Build
+import android.view.HapticFeedbackConstants
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,10 +18,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -43,24 +49,39 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.dzivko1.recap.R
 import io.github.dzivko1.recap.model.Record
 import io.github.dzivko1.recap.ui.theme.Colors
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.ReorderableItemScope
+import sh.calvin.reorderable.rememberReorderableLazyColumnState
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DayScreen(
   date: LocalDate,
   records: List<Record>,
   onSaveRecord: (id: String?, text: String) -> Unit,
   onDeleteRecord: (id: String) -> Unit,
+  onMoveRecord: (from: Int, to: Int) -> Unit,
 ) {
+  val listState = rememberLazyListState()
+  val reorderableListState = rememberReorderableLazyColumnState(
+    lazyListState = listState,
+    onMove = { from, to ->
+      // Adjusting index to account for list items that aren't reorderable
+      onMoveRecord(from.index - 1, to.index - 1)
+    }
+  )
+
   var editedRecordId by rememberSaveable { mutableStateOf<String?>(null) }
 
   Scaffold { contentPadding ->
@@ -68,6 +89,7 @@ fun DayScreen(
       Modifier
         .fillMaxSize()
         .padding(contentPadding),
+      state = listState,
       contentPadding = PaddingValues(vertical = 16.dp)
     ) {
       item {
@@ -84,26 +106,28 @@ fun DayScreen(
       }
 
       items(records, key = { it.id }) { record ->
-        AnimatedContent(
-          label = "Record edit transition",
-          targetState = record.id == editedRecordId,
-          transitionSpec = { fadeIn() togetherWith fadeOut() }
-        ) { isEditing ->
-          if (isEditing) {
-            RecordInput(
-              initialText = records.find { it.id == editedRecordId }?.text.orEmpty(),
-              onSaveClick = { text ->
-                onSaveRecord(editedRecordId, text)
-                editedRecordId = null
-              },
-              onCancelClick = { editedRecordId = null }
-            )
-          } else {
-            RecordItem(
-              record = record,
-              onClick = { editedRecordId = record.id },
-              onDeleteSwipe = { onDeleteRecord(record.id) }
-            )
+        ReorderableItem(reorderableListState, key = record.id) {
+          AnimatedContent(
+            label = "Record edit transition",
+            targetState = record.id == editedRecordId,
+            transitionSpec = { fadeIn() togetherWith fadeOut() }
+          ) { isEditing ->
+            if (isEditing) {
+              RecordInput(
+                initialText = records.find { it.id == editedRecordId }?.text.orEmpty(),
+                onSaveClick = { text ->
+                  onSaveRecord(editedRecordId, text)
+                  editedRecordId = null
+                },
+                onCancelClick = { editedRecordId = null }
+              )
+            } else {
+              RecordItem(
+                record = record,
+                onClick = { editedRecordId = record.id },
+                onDeleteSwipe = { onDeleteRecord(record.id) }
+              )
+            }
           }
         }
       }
@@ -148,11 +172,12 @@ fun DayScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RecordItem(
+private fun ReorderableItemScope.RecordItem(
   record: Record,
   onClick: () -> Unit,
   onDeleteSwipe: () -> Unit,
 ) {
+  val view = LocalView.current
   val dismissState = rememberSwipeToDismissBoxState(
     confirmValueChange = {
       when (it) {
@@ -189,15 +214,33 @@ private fun RecordItem(
     },
   ) {
     Surface(onClick = onClick) {
-      Text(
-        text = "‣ ${record.text}",
-        style = MaterialTheme.typography.bodyMedium,
-        modifier = Modifier
-          .background(MaterialTheme.colorScheme.surface)
-          .minimumInteractiveComponentSize()
-          .fillMaxSize()
-          .padding(horizontal = 16.dp, vertical = 8.dp)
-      )
+      Row(
+        Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        Text(
+          text = "‣ ${record.text}",
+          style = MaterialTheme.typography.bodyMedium,
+          modifier = Modifier
+            .background(MaterialTheme.colorScheme.surface)
+            .minimumInteractiveComponentSize()
+            .weight(1f)
+        )
+        Icon(
+          Icons.Default.DragHandle,
+          contentDescription = null,
+          modifier = Modifier.draggableHandle(
+            onDragStarted = {
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                view.performHapticFeedback(HapticFeedbackConstants.DRAG_START)
+              } else {
+                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+              }
+            }
+          )
+        )
+      }
     }
   }
 }
