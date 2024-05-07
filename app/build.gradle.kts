@@ -70,6 +70,10 @@ dependencies {
   implementation(libs.firebase.firestore)
   implementation(libs.firebaseUiAuth)
   implementation(libs.reorderable)
+  implementation(libs.room.runtime)
+  implementation(libs.room.ktx)
+  annotationProcessor(libs.room.compiler)
+  kapt(libs.room.compiler)
 
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)
