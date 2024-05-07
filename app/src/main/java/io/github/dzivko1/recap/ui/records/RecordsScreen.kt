@@ -78,7 +78,7 @@ fun RecordsScreen(
       verticalArrangement = Arrangement.spacedBy(16.dp),
       contentPadding = PaddingValues(vertical = 16.dp)
     ) {
-      items(records.groupBy { it.date }.toSortedMap().toList()) { (date, records) ->
+      items(records.groupBy { it.date }.toSortedMap().toList().asReversed()) { (date, records) ->
         DayItem(
           date = date,
           records = records,

@@ -49,13 +49,15 @@ class FirebaseDataSource @Inject constructor(
     date: LocalDate,
     text: String,
   ) {
-    val recordCount = recordsCollection.count()
-      .get(AggregateSource.SERVER).await()
-      .count.toInt()
+    val dayRecordCount = recordsCollection
+      .whereEqualTo("epochDay", date.toEpochDay())
+      .count()
+      .get(AggregateSource.SERVER)
+      .await().count.toInt()
 
     recordsCollection.add(
       Record(
-        index = recordCount,
+        index = dayRecordCount,
         date = date,
         text = text,
         createdAt = Timestamp.now(),
