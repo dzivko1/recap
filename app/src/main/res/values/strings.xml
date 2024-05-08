@@ -14,4 +14,10 @@
   <string name="day_save_record_content_desc">Save record</string>
   <string name="day_cancel_record_edit_content_desc">Cancel editing</string>
   <string name="day_delete_record_swipe_label">Delete</string>
+
+  <!-- Notifications -->
+  <string name="recap_nudge_channel_name">Recap nudge</string>
+  <string name="recap_nudge_channel_description">Daily reminder to save your newest memories</string>
+  <string name="recap_nudge_notification_title">Want to Recap today\'s events?</string>
+  <string name="recap_nudge_notification_text">Save your most important memories.</string>
 </resources>
