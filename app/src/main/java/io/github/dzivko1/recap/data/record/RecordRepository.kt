@@ -5,7 +5,10 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 interface RecordRepository {
+
   fun getRecordsFlow(): Flow<List<Record>>
+
+  suspend fun loadMoreRecords(count: Int = RECORD_PAGE_SIZE)
 
   fun getDayRecordsFlow(date: LocalDate): Flow<List<Record>>
 
@@ -18,4 +21,9 @@ interface RecordRepository {
   suspend fun deleteRecord(id: String)
 
   fun setRecordsOrder(records: List<Record>)
+
+  companion object {
+    const val INITIAL_RECORD_LOAD_COUNT = 40
+    const val RECORD_PAGE_SIZE = 30
+  }
 }

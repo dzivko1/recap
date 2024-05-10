@@ -1,14 +1,19 @@
 package io.github.dzivko1.recap.ui.records
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,15 +26,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.dzivko1.recap.R
+import io.github.dzivko1.recap.data.record.RecordRepository
 import io.github.dzivko1.recap.model.Record
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -39,9 +47,11 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordsScreen(
-  records: List<Record>,
+  uiState: RecordsUiState,
   onDaySelect: (LocalDate) -> Unit,
+  onRequestMoreRecords: () -> Unit,
 ) {
+  val listState = rememberLazyListState()
   var dayInputVisible by remember { mutableStateOf(false) }
   val datePickerState = rememberDatePickerState(
     initialSelectedDateMillis = System.currentTimeMillis()
@@ -63,6 +73,11 @@ fun RecordsScreen(
     }
   }
 
+  LazyLoadEffect(
+    listState = listState,
+    onRequestMoreRecords = onRequestMoreRecords
+  )
+
   Scaffold(
     floatingActionButton = {
       FloatingActionButton(onClick = { dayInputVisible = true }) {
@@ -75,16 +90,101 @@ fun RecordsScreen(
   ) { contentPadding ->
     LazyColumn(
       Modifier.padding(contentPadding),
+      state = listState,
       verticalArrangement = Arrangement.spacedBy(16.dp),
       contentPadding = PaddingValues(vertical = 16.dp)
     ) {
-      items(records.groupBy { it.date }.toSortedMap().toList().asReversed()) { (date, records) ->
-        DayItem(
-          date = date,
-          records = records,
-          onClick = { onDaySelect(date) }
-        )
+      when {
+        uiState.records?.isEmpty() == true -> {
+          item {
+            Box(
+              Modifier
+                .fillMaxSize()
+                .padding(vertical = 32.dp),
+              contentAlignment = Alignment.Center
+            ) {
+              Text(stringResource(R.string.records_empty_message))
+            }
+          }
+        }
+
+        uiState.records != null -> {
+          items(
+            uiState.records.groupBy { it.date }.toSortedMap().toList().asReversed(),
+            key = { (date, _) -> date }
+          ) { (date, records) ->
+            DayItem(
+              date = date,
+              records = records,
+              onClick = { onDaySelect(date) }
+            )
+          }
+        }
       }
+
+      when {
+        uiState.recordLoadingError != null -> {
+          item(key = KEY_ERROR_ITEM) {
+            Box(
+              Modifier
+                .fillMaxSize()
+                .padding(vertical = 16.dp),
+              contentAlignment = Alignment.Center
+            ) {
+              Text(
+                stringResource(
+                  R.string.page_loading_error,
+                  uiState.recordLoadingError.localizedMessage
+                    ?: stringResource(R.string.general_unknown)
+                )
+              )
+            }
+          }
+        }
+
+        uiState.areRecordsLoading -> {
+          item {
+            Box(
+              Modifier
+                .fillMaxSize()
+                .padding(vertical = 16.dp),
+              contentAlignment = Alignment.Center
+            ) {
+              CircularProgressIndicator()
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@Composable
+private fun LazyLoadEffect(
+  listState: LazyListState,
+  onRequestMoreRecords: () -> Unit,
+) {
+  var isLoadingMore by remember { mutableStateOf(false) }
+
+  LaunchedEffect(listState.firstVisibleItemIndex) {
+    val firstVisibleItemIndex = listState.firstVisibleItemIndex
+    val totalItemsCount = listState.layoutInfo.totalItemsCount
+
+    if (!isLoadingMore && totalItemsCount > 0 &&
+      firstVisibleItemIndex >= totalItemsCount - RecordRepository.RECORD_PAGE_SIZE / 2
+    ) {
+      isLoadingMore = true
+      onRequestMoreRecords()
+    }
+  }
+
+  LaunchedEffect(listState.layoutInfo.totalItemsCount) {
+    isLoadingMore = false
+  }
+
+  LaunchedEffect(listState.layoutInfo.visibleItemsInfo) {
+    if (listState.layoutInfo.visibleItemsInfo.lastOrNull()?.key == KEY_ERROR_ITEM) {
+      isLoadingMore = false
     }
   }
 }
@@ -122,3 +222,5 @@ private fun DayItem(
     }
   }
 }
+
+private const val KEY_ERROR_ITEM = "error"

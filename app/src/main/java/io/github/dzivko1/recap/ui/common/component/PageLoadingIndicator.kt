@@ -21,6 +21,6 @@ fun PageLoadingIndicator() {
       .background(Color.Black.copy(alpha = 0.5f)),
     contentAlignment = Alignment.Center
   ) {
-    CircularProgressIndicator(color = Color.Gray)
+    CircularProgressIndicator()
   }
 }

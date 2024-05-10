@@ -1,7 +1,6 @@
 package io.github.dzivko1.recap.ui.records
 
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -15,15 +14,20 @@ fun NavGraphBuilder.recordsScreen(
 ) {
   composable(RECORDS_ROUTE) {
     val viewModel = hiltViewModel<RecordsViewModel>()
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState = viewModel.uiState
+
+    LaunchedEffect(Unit) {
+      viewModel.loadData()
+    }
 
     if (uiState.records == null) {
       PageLoadingIndicator()
     }
 
     RecordsScreen(
-      records = uiState.records ?: emptyList(),
-      onDaySelect = onDaySelect
+      uiState = uiState,
+      onDaySelect = onDaySelect,
+      onRequestMoreRecords = viewModel::loadMoreRecords
     )
   }
 }
