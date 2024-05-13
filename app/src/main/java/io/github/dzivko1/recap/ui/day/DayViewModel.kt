@@ -22,6 +22,7 @@ class DayViewModel @Inject constructor(
   private val args = DayArgs(savedStateHandle)
 
   val date = args.date
+  val shouldStartRecordOnOpen = args.startRecord
 
   var uiState by mutableStateOf(DayUiState())
     private set

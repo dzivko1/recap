@@ -69,6 +69,7 @@ import java.util.Locale
 fun DayScreen(
   date: LocalDate,
   records: List<Record>,
+  startRecordOnOpen: Boolean,
   onSaveRecord: (id: String?, text: String) -> Unit,
   onDeleteRecord: (id: String) -> Unit,
   onMoveRecord: (from: Int, to: Int) -> Unit,
@@ -82,7 +83,7 @@ fun DayScreen(
     }
   )
 
-  var editedRecordId by rememberSaveable { mutableStateOf<String?>(null) }
+  var editedRecordId by rememberSaveable { mutableStateOf(if (startRecordOnOpen) "" else null) }
 
   Scaffold { contentPadding ->
     LazyColumn(

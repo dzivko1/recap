@@ -10,7 +10,7 @@ import java.time.LocalDate
 const val RECORDS_ROUTE = "records"
 
 fun NavGraphBuilder.recordsScreen(
-  onDaySelect: (LocalDate) -> Unit,
+  onDaySelect: (LocalDate, startRecord: Boolean) -> Unit,
 ) {
   composable(RECORDS_ROUTE) {
     val viewModel = hiltViewModel<RecordsViewModel>()

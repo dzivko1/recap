@@ -48,7 +48,7 @@ import java.util.Locale
 @Composable
 fun RecordsScreen(
   uiState: RecordsUiState,
-  onDaySelect: (LocalDate) -> Unit,
+  onDaySelect: (LocalDate, startRecord: Boolean) -> Unit,
   onRequestMoreRecords: () -> Unit,
 ) {
   val listState = rememberLazyListState()
@@ -63,7 +63,12 @@ fun RecordsScreen(
       confirmButton = {
         TextButton(
           enabled = datePickerState.selectedDateMillis != null,
-          onClick = { onDaySelect(LocalDate.ofEpochDay(datePickerState.selectedDateMillis!! / 86400000)) }
+          onClick = {
+            onDaySelect(
+              LocalDate.ofEpochDay(datePickerState.selectedDateMillis!! / 86400000),
+              true
+            )
+          }
         ) {
           Text(stringResource(R.string.records_date_picker_select_button).uppercase())
         }
@@ -116,7 +121,7 @@ fun RecordsScreen(
             DayItem(
               date = date,
               records = records,
-              onClick = { onDaySelect(date) }
+              onClick = { onDaySelect(date, false) }
             )
           }
         }

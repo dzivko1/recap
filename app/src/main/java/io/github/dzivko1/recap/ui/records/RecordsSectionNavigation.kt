@@ -11,7 +11,7 @@ const val RECORDS_SECTION_ROUTE = "records-section"
 fun NavGraphBuilder.recordsSection(navController: NavHostController) {
   navigation(route = RECORDS_SECTION_ROUTE, startDestination = RECORDS_ROUTE) {
     recordsScreen(
-      onDaySelect = { date -> navController.navigateToDay(date) }
+      onDaySelect = { date, startRecord -> navController.navigateToDay(date, startRecord) }
     )
 
     dayScreen()
