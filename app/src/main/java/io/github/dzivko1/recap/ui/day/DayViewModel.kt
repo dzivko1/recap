@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.dzivko1.recap.data.record.RecordRepository
 import kotlinx.coroutines.Job
@@ -19,7 +20,7 @@ class DayViewModel @Inject constructor(
   private val recordRepository: RecordRepository,
 ) : ViewModel() {
 
-  private val args = DayArgs(savedStateHandle)
+  private val args = savedStateHandle.toRoute<DayRoute>()
 
   val date = args.date
   val shouldStartRecordOnOpen = args.startRecord

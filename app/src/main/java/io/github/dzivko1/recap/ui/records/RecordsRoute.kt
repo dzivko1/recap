@@ -5,14 +5,16 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import io.github.dzivko1.recap.ui.common.component.PageLoadingIndicator
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
-const val RECORDS_ROUTE = "records"
+@Serializable
+object RecordsRoute
 
-fun NavGraphBuilder.recordsScreen(
+fun NavGraphBuilder.recordsRoute(
   onDaySelect: (LocalDate, startRecord: Boolean) -> Unit,
 ) {
-  composable(RECORDS_ROUTE) {
+  composable<RecordsRoute> {
     val viewModel = hiltViewModel<RecordsViewModel>()
     val uiState = viewModel.uiState
 

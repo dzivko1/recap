@@ -1,5 +1,6 @@
 plugins {
   kotlin("kapt")
+  kotlin("plugin.serialization") version libs.versions.kotlin
   alias(libs.plugins.androidApplication)
   alias(libs.plugins.jetbrainsKotlinAndroid)
   alias(libs.plugins.compose.compiler)
@@ -52,6 +53,7 @@ android {
 }
 
 dependencies {
+  implementation(libs.kotlinx.serialization.json)
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.lifecycle.runtime.ktx)
   implementation(libs.androidx.activity.compose)
