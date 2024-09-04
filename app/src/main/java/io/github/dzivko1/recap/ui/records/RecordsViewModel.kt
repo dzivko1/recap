@@ -35,7 +35,7 @@ class RecordsViewModel @Inject constructor(
       areRecordsLoading = true,
       recordLoadingError = null
     )
-    
+
     viewModelScope.launch {
       try {
         recordRepository.loadMoreRecords()

@@ -2,13 +2,7 @@ package io.github.dzivko1.recap.data.record
 
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.AggregateSource
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.dataObjects
-import com.google.firebase.firestore.toObjects
+import com.google.firebase.firestore.*
 import io.github.dzivko1.recap.model.Record
 import io.github.dzivko1.recap.model.RecordApiModel
 import io.github.dzivko1.recap.model.toApiModel

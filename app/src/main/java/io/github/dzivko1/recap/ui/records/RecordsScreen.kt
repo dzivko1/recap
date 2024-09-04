@@ -1,36 +1,14 @@
 package io.github.dzivko1.recap.ui.records
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -170,9 +148,10 @@ private fun LazyLoadEffect(
   onRequestMoreRecords: () -> Unit,
 ) {
   var isLoadingMore by remember { mutableStateOf(false) }
+  val firstVisibleItemIndex by remember { derivedStateOf { listState.firstVisibleItemIndex } }
+  val layoutInfo by remember { derivedStateOf { listState.layoutInfo } }
 
-  LaunchedEffect(listState.firstVisibleItemIndex) {
-    val firstVisibleItemIndex = listState.firstVisibleItemIndex
+  LaunchedEffect(firstVisibleItemIndex) {
     val totalItemsCount = listState.layoutInfo.totalItemsCount
 
     if (!isLoadingMore && totalItemsCount > 0 &&
@@ -183,11 +162,11 @@ private fun LazyLoadEffect(
     }
   }
 
-  LaunchedEffect(listState.layoutInfo.totalItemsCount) {
+  LaunchedEffect(layoutInfo.totalItemsCount) {
     isLoadingMore = false
   }
 
-  LaunchedEffect(listState.layoutInfo.visibleItemsInfo) {
+  LaunchedEffect(layoutInfo.visibleItemsInfo) {
     if (listState.layoutInfo.visibleItemsInfo.lastOrNull()?.key == KEY_ERROR_ITEM) {
       isLoadingMore = false
     }

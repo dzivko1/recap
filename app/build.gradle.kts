@@ -2,6 +2,7 @@ plugins {
   kotlin("kapt")
   alias(libs.plugins.androidApplication)
   alias(libs.plugins.jetbrainsKotlinAndroid)
+  alias(libs.plugins.compose.compiler)
   alias(libs.plugins.hilt)
   alias(libs.plugins.googleServices)
 }
@@ -14,8 +15,8 @@ android {
     applicationId = "io.github.dzivko1.recap"
     minSdk = 29
     targetSdk = 34
-    versionCode = 1
-    versionName = "1.0"
+    versionCode = 2
+    versionName = "1.1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     vectorDrawables {
@@ -28,6 +29,9 @@ android {
       isMinifyEnabled = false
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
+//    debug {
+//      applicationIdSuffix = ".debug"
+//    }
   }
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -39,9 +43,6 @@ android {
   buildFeatures {
     compose = true
     buildConfig = true
-  }
-  composeOptions {
-    kotlinCompilerExtensionVersion = "1.5.11"
   }
   packaging {
     resources {
