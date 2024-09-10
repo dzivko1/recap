@@ -10,6 +10,7 @@ data class Record(
   val index: Int,
   val date: LocalDate,
   val text: String,
+  val tags: List<String>,
   val createdAt: Timestamp,
   val updatedAt: Timestamp?,
 )
@@ -20,6 +21,7 @@ data class RecordApiModel(
   val index: Int = -1,
   val epochDay: Long = -1,
   val text: String = "",
+  val tags: List<String> = emptyList(),
   val createdAt: Timestamp = epochTimestamp(),
   val updatedAt: Timestamp? = null,
 )
@@ -30,6 +32,7 @@ fun Record.toApiModel(): RecordApiModel {
     index = index,
     epochDay = date.toEpochDay(),
     text = text,
+    tags = tags,
     createdAt = createdAt,
     updatedAt = updatedAt
   )
@@ -41,6 +44,7 @@ fun RecordApiModel.toDomainModel(): Record {
     index = index,
     date = LocalDate.ofEpochDay(epochDay),
     text = text,
+    tags = tags,
     createdAt = createdAt,
     updatedAt = updatedAt
   )

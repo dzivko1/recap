@@ -37,11 +37,12 @@ class OfflineFirstRecordRepository @Inject constructor(
 
   override suspend fun saveRecord(id: String?, date: LocalDate, text: String) {
     if (id == null) {
-      val record = firebaseDataSource.createRecord(date, text)
+      val record = firebaseDataSource.createRecord(date, text, extractTags(text))
       _recordsFlow.value = (_recordsFlow.value + record)
         .sortedWith(compareByDescending(Record::date).thenBy(Record::index))
     } else {
-      firebaseDataSource.editRecord(id, date, text)
+      val oldRecord = _recordsFlow.value.first { it.id == id }
+      firebaseDataSource.editRecord(id, date, text, extractTags(text), extractTags(oldRecord.text))
       _recordsFlow.value = _recordsFlow.value.map {
         if (it.id == id) it.copy(date = date, text = text) else it
       }
@@ -49,8 +50,9 @@ class OfflineFirstRecordRepository @Inject constructor(
   }
 
   override suspend fun deleteRecord(id: String) {
-    firebaseDataSource.deleteRecord(id)
-    _recordsFlow.value = _recordsFlow.value.filterNot { it.id == id }
+    val record = _recordsFlow.value.find { it.id == id } ?: return
+    firebaseDataSource.deleteRecord(id, extractTags(record.text))
+    _recordsFlow.value -= record
   }
 
   override fun setRecordsOrder(records: List<Record>) {
@@ -59,5 +61,11 @@ class OfflineFirstRecordRepository @Inject constructor(
       val newIndex = records.indexOf(existingRecord)
       if (newIndex != -1) existingRecord.copy(index = newIndex) else existingRecord
     }.sortedWith(compareByDescending(Record::date).thenBy(Record::index))
+  }
+
+  private fun extractTags(text: String): List<String> {
+    return text.split(Regex("\\s+"))
+      .filter { it.startsWith("#") }
+      .map { it.substring(1) }
   }
 }
