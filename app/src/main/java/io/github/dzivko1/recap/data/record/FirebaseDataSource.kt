@@ -101,21 +101,20 @@ class FirebaseDataSource @Inject constructor(
     oldTags: List<String>,
   ) {
     db.runTransaction { transaction ->
-      transaction.set(
+      transaction.update(
         recordsCollection.document(id),
         mapOf(
           "epochDay" to date.toEpochDay(),
           "text" to text,
           "tags" to newTags,
           "updatedAt" to Timestamp.now()
-        ),
-        SetOptions.merge()
+        )
       )
 
       val tagSummary = transaction.getUser().tagSummary
         .withRemovedTags(oldTags)
         .withNewTags(newTags)
-      transaction.set(userRef, mapOf("tags" to tagSummary.tags), SetOptions.merge())
+      transaction.update(userRef, "tags", tagSummary.tags)
     }.await()
   }
 
@@ -131,12 +130,11 @@ class FirebaseDataSource @Inject constructor(
 
   fun setRecordsOrderAsync(records: List<Record>) {
     records.forEachIndexed { index, record ->
-      recordsCollection.document(record.id).set(
-        mapOf(
-          "index" to index
-        ),
-        SetOptions.merge()
-      )
+      recordsCollection.document(record.id)
+        .set(
+          mapOf("index" to index),
+          SetOptions.merge()
+        )
     }
   }
 }

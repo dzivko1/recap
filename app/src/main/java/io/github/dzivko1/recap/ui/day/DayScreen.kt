@@ -160,19 +160,27 @@ private fun ReorderableCollectionItemScope.RecordItem(
   onDeleteSwipe: () -> Unit,
 ) {
   val view = LocalView.current
-  val dismissState = rememberSwipeToDismissBoxState(
+  val threshold = 0.6f
+  var dismissState: SwipeToDismissBoxState? = null
+  dismissState = rememberSwipeToDismissBoxState(
     confirmValueChange = {
       when (it) {
         SwipeToDismissBoxValue.StartToEnd,
         SwipeToDismissBoxValue.EndToStart,
         -> {
-          onDeleteSwipe()
-          true
+          if (dismissState!!.progress > threshold) {
+            view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+            onDeleteSwipe()
+            true
+          } else {
+            false
+          }
         }
 
         SwipeToDismissBoxValue.Settled -> false
       }
-    }
+    },
+    positionalThreshold = { it * threshold }
   )
 
   SwipeToDismissBox(
