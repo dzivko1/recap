@@ -23,6 +23,8 @@ class RecordsViewModel @Inject constructor(
   fun loadData() {
     if (loaded) return
     viewModelScope.launch {
+      recordRepository.migrate()
+
       recordRepository.getRecordsFlow().collect {
         uiState = uiState.copy(records = it)
       }

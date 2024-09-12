@@ -68,4 +68,8 @@ class OfflineFirstRecordRepository @Inject constructor(
       .filter { it.startsWith("#") }
       .map { it.substring(1) }
   }
+
+  override suspend fun migrate() {
+    firebaseDataSource.migrate()
+  }
 }

@@ -22,6 +22,8 @@ interface RecordRepository {
 
   fun setRecordsOrder(records: List<Record>)
 
+  suspend fun migrate()
+
   companion object {
     const val INITIAL_RECORD_LOAD_COUNT = 40
     const val RECORD_PAGE_SIZE = 30

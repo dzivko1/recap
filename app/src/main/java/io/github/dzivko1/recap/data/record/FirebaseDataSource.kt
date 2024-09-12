@@ -137,4 +137,27 @@ class FirebaseDataSource @Inject constructor(
         )
     }
   }
+
+  suspend fun migrate() {
+    recordsCollection.get().await()
+      .toObjects<RecordApiModel>()
+      .map { it.toDomainModel() }
+      .forEach { record ->
+        db.runTransaction { transaction ->
+          val tags = extractTags(record.text)
+          val tagSummary = transaction.getUser().tagSummary.withNewTags(tags)
+          transaction.set(userRef, mapOf("tags" to tagSummary.tags), SetOptions.merge())
+          transaction.update(
+            recordsCollection.document(record.id),
+            mapOf("tags" to tags),
+          )
+        }
+      }
+  }
+
+  private fun extractTags(text: String): List<String> {
+    return text.split(Regex("\\s+"))
+      .filter { it.startsWith("#") }
+      .map { it.substring(1) }
+  }
 }
