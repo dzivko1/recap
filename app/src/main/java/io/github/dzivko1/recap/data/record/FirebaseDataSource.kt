@@ -101,6 +101,10 @@ class FirebaseDataSource @Inject constructor(
     oldTags: List<String>,
   ) {
     db.runTransaction { transaction ->
+      val tagSummary = transaction.getUser().tagSummary
+        .withRemovedTags(oldTags)
+        .withNewTags(newTags)
+
       transaction.update(
         recordsCollection.document(id),
         mapOf(
@@ -110,10 +114,6 @@ class FirebaseDataSource @Inject constructor(
           "updatedAt" to Timestamp.now()
         )
       )
-
-      val tagSummary = transaction.getUser().tagSummary
-        .withRemovedTags(oldTags)
-        .withNewTags(newTags)
       transaction.update(userRef, "tags", tagSummary.tags)
     }.await()
   }
