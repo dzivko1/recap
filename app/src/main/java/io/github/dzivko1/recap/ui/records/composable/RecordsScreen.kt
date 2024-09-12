@@ -1,4 +1,4 @@
-package io.github.dzivko1.recap.ui.records
+package io.github.dzivko1.recap.ui.records.composable
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import io.github.dzivko1.recap.R
 import io.github.dzivko1.recap.data.record.RecordRepository
 import io.github.dzivko1.recap.model.Record
+import io.github.dzivko1.recap.ui.records.RecordsUiState
+import io.github.dzivko1.recap.ui.records.TagFilter
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -28,6 +30,8 @@ fun RecordsScreen(
   uiState: RecordsUiState,
   onDaySelect: (LocalDate, startRecord: Boolean) -> Unit,
   onRequestMoreRecords: () -> Unit,
+  onFilterToggle: (TagFilter) -> Unit,
+  onFiltersConfirm: () -> Unit,
 ) {
   val listState = rememberLazyListState()
   var dayInputVisible by remember { mutableStateOf(false) }
@@ -71,69 +75,83 @@ fun RecordsScreen(
       }
     }
   ) { contentPadding ->
-    LazyColumn(
-      Modifier.padding(contentPadding),
-      state = listState,
-      verticalArrangement = Arrangement.spacedBy(16.dp),
-      contentPadding = PaddingValues(vertical = 16.dp)
-    ) {
-      when {
-        uiState.records?.isEmpty() == true -> {
-          item {
-            Box(
-              Modifier
-                .fillMaxSize()
-                .padding(vertical = 32.dp),
-              contentAlignment = Alignment.Center
-            ) {
-              Text(stringResource(R.string.records_empty_message))
-            }
-          }
-        }
-
-        uiState.records != null -> {
-          items(
-            uiState.records.groupBy { it.date }.toSortedMap().toList().asReversed(),
-            key = { (date, _) -> date }
-          ) { (date, records) ->
-            DayItem(
-              date = date,
-              records = records,
-              onClick = { onDaySelect(date, false) }
-            )
-          }
-        }
+    Column {
+      Surface(
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth()
+      ) {
+        TagFilterSection(
+          filters = uiState.tagFilters,
+          onFilterToggle = onFilterToggle,
+          onFiltersConfirm = onFiltersConfirm,
+          modifier = Modifier.padding(8.dp)
+        )
       }
 
-      when {
-        uiState.recordLoadingError != null -> {
-          item(key = KEY_ERROR_ITEM) {
-            Box(
-              Modifier
-                .fillMaxSize()
-                .padding(vertical = 16.dp),
-              contentAlignment = Alignment.Center
-            ) {
-              Text(
-                stringResource(
-                  R.string.page_loading_error,
-                  uiState.recordLoadingError.localizedMessage
-                    ?: stringResource(R.string.general_unknown)
-                )
+      LazyColumn(
+        Modifier.padding(contentPadding),
+        state = listState,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(vertical = 16.dp)
+      ) {
+        when {
+          uiState.records?.isEmpty() == true -> {
+            item {
+              Box(
+                Modifier
+                  .fillMaxSize()
+                  .padding(vertical = 32.dp),
+                contentAlignment = Alignment.Center
+              ) {
+                Text(stringResource(R.string.records_empty_message))
+              }
+            }
+          }
+
+          uiState.records != null -> {
+            items(
+              uiState.records.groupBy { it.date }.toSortedMap().toList().asReversed(),
+              key = { (date, _) -> date }
+            ) { (date, records) ->
+              DayItem(
+                date = date,
+                records = records,
+                onClick = { onDaySelect(date, false) }
               )
             }
           }
         }
 
-        uiState.areRecordsLoading -> {
-          item {
-            Box(
-              Modifier
-                .fillMaxSize()
-                .padding(vertical = 16.dp),
-              contentAlignment = Alignment.Center
-            ) {
-              CircularProgressIndicator()
+        when {
+          uiState.recordLoadingError != null -> {
+            item(key = KEY_ERROR_ITEM) {
+              Box(
+                Modifier
+                  .fillMaxSize()
+                  .padding(vertical = 16.dp),
+                contentAlignment = Alignment.Center
+              ) {
+                Text(
+                  stringResource(
+                    R.string.page_loading_error,
+                    uiState.recordLoadingError.localizedMessage
+                      ?: stringResource(R.string.general_unknown)
+                  )
+                )
+              }
+            }
+          }
+
+          uiState.areRecordsLoading -> {
+            item {
+              Box(
+                Modifier
+                  .fillMaxSize()
+                  .padding(vertical = 16.dp),
+                contentAlignment = Alignment.Center
+              ) {
+                CircularProgressIndicator()
+              }
             }
           }
         }

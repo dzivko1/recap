@@ -6,4 +6,10 @@ data class RecordsUiState(
   val areRecordsLoading: Boolean = false,
   val recordLoadingError: Exception? = null,
   val records: List<Record>? = null,
+  val tagFilters: List<TagFilter> = emptyList(),
+)
+
+data class TagFilter(
+  val name: String,
+  val isSelected: Boolean,
 )

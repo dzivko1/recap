@@ -13,7 +13,11 @@ data class Record(
   val tags: List<String>,
   val createdAt: Timestamp,
   val updatedAt: Timestamp?,
-)
+) {
+  fun passesTagFilters(tagFilters: List<String>): Boolean {
+    return tagFilters.isEmpty() || tags.any { tagFilters.contains(it) }
+  }
+}
 
 data class RecordApiModel(
   @DocumentId

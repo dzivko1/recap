@@ -27,6 +27,19 @@ class RecordsViewModel @Inject constructor(
         uiState = uiState.copy(records = it)
       }
     }
+    viewModelScope.launch {
+      recordRepository.getTagsFlow().collect { newTags ->
+        val currentTags = uiState.tagFilters
+        uiState = uiState.copy(
+          tagFilters = newTags.map { tag ->
+            TagFilter(
+              name = tag,
+              isSelected = currentTags.any { it.name == tag && it.isSelected }
+            )
+          }
+        )
+      }
+    }
     loaded = true
   }
 
@@ -44,6 +57,28 @@ class RecordsViewModel @Inject constructor(
       } finally {
         uiState = uiState.copy(areRecordsLoading = false)
       }
+    }
+  }
+
+  fun toggleTagFilter(filter: TagFilter) {
+    uiState = uiState.copy(
+      tagFilters = uiState.tagFilters.map {
+        if (it.name == filter.name) {
+          it.copy(isSelected = !it.isSelected)
+        } else {
+          it
+        }
+      }
+    )
+  }
+
+  fun applyTagFilters() {
+    viewModelScope.launch {
+      recordRepository.setActiveTagFilters(
+        uiState.tagFilters
+          .filter { it.isSelected }
+          .map { it.name }
+      )
     }
   }
 }

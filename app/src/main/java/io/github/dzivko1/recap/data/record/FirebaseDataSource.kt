@@ -5,7 +5,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import io.github.dzivko1.recap.model.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import javax.inject.Inject
@@ -40,8 +42,13 @@ class FirebaseDataSource @Inject constructor(
     return db.collection("users/$userId/$collectionPath")
   }
 
-  suspend fun getRecords(startAfter: Record?, count: Int): List<Record> {
+  suspend fun getRecords(
+    startAfter: Record?,
+    count: Int,
+    tagFilters: List<String>? = null,
+  ): List<Record> {
     return recordsCollection
+      .run { if (!tagFilters.isNullOrEmpty()) whereArrayContainsAny("tags", tagFilters) else this }
       .orderBy("epochDay", Query.Direction.DESCENDING)
       .orderBy("index", Query.Direction.ASCENDING)
       .let {
@@ -55,8 +62,9 @@ class FirebaseDataSource @Inject constructor(
       .map { it.toDomainModel() }
   }
 
-  fun getDayRecordsFlow(date: LocalDate): Flow<List<Record>> {
+  fun getDayRecordsFlow(date: LocalDate, tagFilters: List<String>? = null): Flow<List<Record>> {
     return recordsCollection
+      .run { if (!tagFilters.isNullOrEmpty()) whereArrayContainsAny("tags", tagFilters) else this }
       .whereEqualTo("epochDay", date.toEpochDay())
       .orderBy("index")
       .dataObjects<RecordApiModel>()
@@ -136,5 +144,17 @@ class FirebaseDataSource @Inject constructor(
           SetOptions.merge()
         )
     }
+  }
+
+  fun getTagsFlow(): Flow<List<String>> {
+    return userRef.dataObjects<RecapUserApiModel>()
+      .distinctUntilChangedBy {
+        it?.tags?.joinToString(separator = " ") { tagInfo -> tagInfo.name }
+      }
+      .mapNotNull { tagInfo ->
+        tagInfo?.tags
+          ?.sortedByDescending { it.count }
+          ?.map { it.name }
+      }
   }
 }

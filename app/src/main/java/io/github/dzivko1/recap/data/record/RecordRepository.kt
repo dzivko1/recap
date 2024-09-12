@@ -6,7 +6,7 @@ import java.time.LocalDate
 
 interface RecordRepository {
 
-  fun getRecordsFlow(): Flow<List<Record>>
+  fun getRecordsFlow(): Flow<List<Record>?>
 
   suspend fun loadMoreRecords(count: Int = RECORD_PAGE_SIZE)
 
@@ -21,6 +21,12 @@ interface RecordRepository {
   suspend fun deleteRecord(id: String)
 
   fun setRecordsOrder(records: List<Record>)
+
+  fun getTagsFlow(): Flow<List<String>>
+
+  fun getActiveTagFiltersFlow(): Flow<List<String>>
+
+  suspend fun setActiveTagFilters(filters: List<String>)
 
   companion object {
     const val INITIAL_RECORD_LOAD_COUNT = 40

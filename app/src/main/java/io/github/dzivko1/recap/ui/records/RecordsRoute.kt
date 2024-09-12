@@ -5,6 +5,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import io.github.dzivko1.recap.ui.common.component.PageLoadingIndicator
+import io.github.dzivko1.recap.ui.records.composable.RecordsScreen
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
@@ -29,7 +30,9 @@ fun NavGraphBuilder.recordsRoute(
     RecordsScreen(
       uiState = uiState,
       onDaySelect = onDaySelect,
-      onRequestMoreRecords = viewModel::loadMoreRecords
+      onRequestMoreRecords = viewModel::loadMoreRecords,
+      onFilterToggle = viewModel::toggleTagFilter,
+      onFiltersConfirm = viewModel::applyTagFilters
     )
   }
 }

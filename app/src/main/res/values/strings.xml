@@ -11,6 +11,7 @@
 
   <!-- Records screen -->
   <string name="records_empty_message">No records yet.</string>
+  <string name="records_filter_dropdown_label">Add filter</string>
   <string name="records_add_record_content_desc">Add record</string>
   <string name="records_date_picker_select_button">Select</string>
 
