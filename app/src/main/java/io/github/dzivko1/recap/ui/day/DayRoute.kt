@@ -5,6 +5,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import io.github.dzivko1.recap.ui.common.component.PageLoadingIndicator
+import io.github.dzivko1.recap.ui.day.composable.DayScreen
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
@@ -34,7 +35,7 @@ fun NavGraphBuilder.dayRoute() {
 
     DayScreen(
       date = viewModel.date,
-      records = uiState.records,
+      uiState = uiState,
       startRecordOnOpen = viewModel.shouldStartRecordOnOpen,
       onSaveRecord = viewModel::saveRecord,
       onDeleteRecord = viewModel::deleteRecord,

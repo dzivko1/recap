@@ -41,6 +41,13 @@ class DayViewModel @Inject constructor(
         )
       }
     }
+    viewModelScope.launch {
+      recordRepository.getTagsFlow().collect { tags ->
+        uiState = uiState.copy(
+          availableTags = tags
+        )
+      }
+    }
     loaded = true
   }
 
