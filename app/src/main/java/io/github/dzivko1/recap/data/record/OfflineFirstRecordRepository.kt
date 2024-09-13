@@ -119,7 +119,7 @@ class OfflineFirstRecordRepository @Inject constructor(
 
   private fun extractTags(text: String): List<String> {
     return text.split(Regex("\\s+"))
-      .filter { it.startsWith("#") }
+      .filter { it.startsWith("#") && it.length > 1 }
       .map { it.substring(1) }
   }
 
